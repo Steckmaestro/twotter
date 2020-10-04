@@ -6,9 +6,32 @@
       <div class="user-profile__follower-count">
         <strong>Followers: </strong> {{ followers }}
       </div>
+      <form class="user-profile__create-twoot" @submit.prevent="createNewTwoot">
+        <label for="newTwoot"><strong>New Twoot</strong></label>
+        <textarea id="newTwoot" rows="10" v-model="newTwootContent" />
+        <div class="user-profile__create-twoot-type">
+          <label for="newTwootType"><strong>Type</strong></label>
+          <select id="newTwootType" v-model="selectedTwootType">
+            <option
+              :value="option.value"
+              v-for="(option, index) in twootTypes"
+              :key="index"
+            >
+              {{ option.name }}
+            </option>
+          </select>
+        </div>
+        <button>Twoot!</button>
+      </form>
     </div>
     <div class="user-profile__twoots-wrapper">
-        <TwootItem v-for="twoot in user.twoots" :key="twoot.id" :username="user.username" :twoot="twoot"/>
+      <TwootItem
+        v-for="twoot in user.twoots"
+        :key="twoot.id"
+        :username="user.username"
+        :twoot="twoot"
+        @favorite="toggleFavorite"
+      />
     </div>
   </div>
 </template>
@@ -18,27 +41,39 @@ import TwootItem from "./TwootItem";
 
 export default {
   name: "UserProfile",
-  components: {TwootItem},
+  components: { TwootItem },
   data() {
     return {
+      newTwootContent: "",
+      selectedTwootType: "instant",
+      twootTypes: [
+        {
+          value: "draft",
+          name: "Draft",
+        },
+        {
+          value: "instant",
+          name: "Instant Twoot",
+        },
+      ],
       followers: 0,
       user: {
         id: 1,
-        username: "_MitchellRomney",
-        firstName: "Mitchell",
-        lastName: "Rooney",
-        email: "mitchellromney@awesomeemail.com",
-        isAdmin: false,
+        username: "_ThomasSteck",
+        firstName: "Thomas",
+        lastName: "Steck",
+        email: "thomas.steck@hotmail.com",
+        isAdmin: true,
         twoots: [
-            {
-                id: 1,
-                content: "Twotter is Amazing!"
-            },
-            {
-                id: 2,
-                content: "Don't forget to subscribe to the earth is square!"
-            }
-        ]
+          {
+            id: 1,
+            content: "Twotter is Amazing!",
+          },
+          {
+            id: 2,
+            content: "Don't forget to subscribe to the earth is square!",
+          },
+        ],
       },
     };
   },
@@ -58,6 +93,18 @@ export default {
     followUser() {
       this.followers++;
     },
+    toggleFavorite(id) {
+      console.log(`Favorited Tweet #${id}`);
+    },
+    createNewTwoot() {
+      if (this.newTwootContent && this.selectedTwootType !== "draft") {
+        this.user.twoots.unshift({
+          id: this.user.twoots.length + 1,
+          content: this.newTwootContent,
+        });
+        this.newTwootContent = "";
+      }
+    },
   },
   //Lifecycle hook
   mounted() {
@@ -70,16 +117,15 @@ export default {
 .user-profile {
   display: grid;
   grid-template-columns: 1fr 3fr;
-  width: 100%;
   padding: 50px 5%;
 }
 .user-profile__admin-badge {
-    background: rebeccapurple;
-    color:white;
-    border-radius: 5px;
-    margin-right: auto;
-    padding: 0 10px;
-    font-weight: bold;
+  background: rebeccapurple;
+  color: white;
+  border-radius: 5px;
+  margin-right: auto;
+  padding: 0 10px;
+  font-weight: bold;
 }
 .user-profile__user-panel {
   display: flex;
@@ -92,5 +138,14 @@ export default {
 }
 h1 {
   margin: 0;
+}
+.user-profile__twoots-wrapper {
+  display: grid;
+  grid-gap: 10px;
+}
+.user-profile__create-twoot {
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
 }
 </style>
